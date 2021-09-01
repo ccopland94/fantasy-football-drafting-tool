@@ -339,8 +339,14 @@ export default {
       })
     },
     filterAllPlayers(results) {
-      // filters out players that do not have complete ECR or Score data
-      return results.filter(player => player['ECR'] != "" && player['ECR VS. ADP'] != "" && player['ECRAvg'] != "" && player["Average"] != "")
+      // filters out players that do not have complete ECR or Score data or a name (erroneous data)
+      return results.filter(
+        player => 
+        'ECR' in player && player['ECR'] != "" && 
+        'ECR VS. ADP' in player && player['ECR VS. ADP'] != "" && 
+        'ECRAvg' in player && player['ECRAvg'] != "" && 
+        'Average' in player && player["Average"] != "" &&
+        'Name' in player && player['Name'] != "")
     },
     undoPick() {
       // undo the last pick
