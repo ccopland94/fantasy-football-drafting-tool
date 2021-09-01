@@ -332,11 +332,15 @@ export default {
         worker: true,
         header: true,
         complete: (results) => {
-          this.allPlayers = results.data;
+          this.allPlayers = this.filterAllPlayers(results.data);
           this.loadingSheet = false;
           this.setupDialog = false;
         }
       })
+    },
+    filterAllPlayers(results) {
+      // filters out players that do not have complete ECR or Score data
+      return results.filter(player => player['ECR'] != "" && player['ECR VS. ADP'] != "" && player['ECRAvg'] != "" && player["Average"] != "")
     },
     undoPick() {
       // undo the last pick
@@ -369,6 +373,7 @@ export default {
       if (players.length < 2) {
         return [1, 0]
       }
+
       const bestScore = players[0]["avgFloat"]
       const worstScore = players[players.length-1]["avgFloat"]
       return [bestScore, worstScore]
@@ -418,11 +423,6 @@ export default {
       var pCount = 0
 
       this.allPlayers.forEach(player => {
-        // if we have a missing field, ignore this player
-        if (player['ECR'] == null || player['ECR'] == "") {
-          return;
-        }
-
         if (player['id'] == null) {
           Vue.set(player, 'id', pCount)
           player['id'] = pCount;
