@@ -11,20 +11,28 @@
           class="elevation-1">
           <template v-slot:item="row">
             <tr :class="rowStyle(row.item)+' text-left'">
-              <td>{{row.item['rosterPosition']}}</td>
-              <td>{{row.item['Name']}}</td>
-              <td>{{row.item['Tm/Bye']}}</td>
-              <td>{{row.item['roundDrafted']}}</td>
+              <td class="px-1">{{row.item['rosterPosition']}}</td>
+              <td class="truncate px-1">{{row.item['Name']}}</td>
+              <td class="px-1">{{row.item['Tm/Bye']}}</td>
+              <td class="px-1">{{row.item['roundDrafted']}}</td>
             </tr>
           </template>
           <template v-slot:footer>
             <v-divider/>
-            <div class="pa-2">
-              <span class="text-subtitle-2 font-weight-bold pr-2">Pick Number: <span class="font-weight-regular">{{ totalPicks + 1}}</span></span>
-              <span class="text-subtitle-2 font-weight-bold pl-2 pr-2">Next Pick: <span class="font-weight-regular">{{nextPick}} ({{ picksUntilNext }} left)</span></span>
-              <span class="text-subtitle-2 font-weight-bold pl-2 pr-2">Next Draft Round: <span class="font-weight-regular">{{ round }} / {{ totalPlayerCount }}</span></span>
-              <v-btn class="pl-2" :disabled="pickedPlayerCount <= 0" x-small outlined color="red" @click="undoPick">Undo Last Pick</v-btn>
-            </div>
+            <v-container class="pt-4 pb-4 text-center">
+              <v-row justify="center">
+                <v-col cols="auto" class="px-1 pt-0 pb-0">
+                <span class="text-subtitle-2 font-weight-bold">Pick Number: <span class="font-weight-regular">{{ totalPicks + 1}} ({{ currentPickDisplay }})</span></span>
+                </v-col>
+                <v-col cols="auto" class="px-1 pt-0 pb-0">
+                <span class="text-subtitle-2 font-weight-bold">Next Pick: <span class="font-weight-regular">{{nextPick}} ({{ nextPickDisplay }} - {{ picksUntilNext }} left)</span></span>
+                </v-col>
+                <v-col cols="auto" class="px-1 pt-0 pb-0">
+                <v-btn class="" :disabled="pickedPlayerCount <= 0" x-small outlined color="red" @click="undoPick">Undo Last Pick</v-btn>
+                </v-col>
+                <!-- <span class="text-subtitle-2 font-weight-bold pl-2 pr-2">Next Draft Round: <span class="font-weight-regular">{{ round }} / {{ totalPlayerCount }}</span></span> -->
+              </v-row>
+            </v-container>
           </template>
         </v-data-table>
       </v-col>
@@ -36,7 +44,7 @@ export default {
   data: () => ({
     headers: [
       {
-        text: "Roster Position",
+        text: "Pos.",
         value: "rosterPosition"
       },
       {
@@ -45,23 +53,17 @@ export default {
       },
       {
         text: "TM/BW",
-        value: "Tm/Bye"
+        value: "Tm/Bye",
+        sortable: false
       },
       {
         text: "Round",
         value: "roundDrafted"
       }
-    ],
-    qbLim: 1,
-    rbLim: 2,
-    wrLim: 2,
-    teLim: 1,
-    kLim: 1,
-    dstLim: 1,
-    flexLim: 1,
-    benchLim: 6
+    ]
   }),
   props: {
+    rosterSettings: Object,
     players: Array,
     round: Number,
     totalPicks: Number,
@@ -70,6 +72,46 @@ export default {
     allPicks: Array
   },
   computed: {
+    currentPickDisplay() {
+      const round = Math.floor(this.totalPicks / this.numTeams) + 1
+      var pick = this.totalPicks % this.numTeams + 1
+      if (pick == 0) {
+        pick = this.numTeams
+      }
+      return round + "|" + (pick < 10 ? '0'+pick : pick)
+    },
+    nextPickDisplay() {
+      const round = Math.floor(this.nextPick / this.numTeams) + 1
+      var pick = this.nextPick % this.numTeams
+      if (pick == 0) {
+        pick = this.numTeams
+      }
+      return round + "|" + (pick < 10 ? '0'+pick : pick)
+    },
+    qbLim() {
+      return this.rosterSettings['QB']
+    },
+    rbLim() {
+      return this.rosterSettings['RB']
+    },
+    wrLim() {
+      return this.rosterSettings['WR']
+    },
+    teLim() {
+      return this.rosterSettings['TE']
+    },
+    kLim() {
+      return this.rosterSettings['K']
+    },
+    dstLim() {
+      return this.rosterSettings['D/ST']
+    },
+    flexLim() {
+      return this.rosterSettings['FLEX']
+    },
+    benchLim() {
+      return this.rosterSettings['BENCH']
+    },
     nextPick () {
       for (var i = 0; i < this.allPicks.length; i++) {
         const pickSpot = this.allPicks[i]
@@ -163,14 +205,14 @@ export default {
       var counter = 0
       starters.forEach(element => {
         var rowElem = element
-        rowElem['rosterPosition'] = label + (counter+1)
+        rowElem['rosterPosition'] = label + (starterLimit > 1 ? counter+1 : "")
         rows.push(rowElem)
         counter++;
       })
 
       for (var i = 0; i < starterLimit - starters.length; i++) {
         rows.push({
-          "rosterPosition": label+(counter+i+1),
+          "rosterPosition": label + (starterLimit > 1 ? counter+i+1 : ""),
           "Name": "--",
           "Tm/Bye": "--",
           "position": "--",
@@ -186,7 +228,7 @@ export default {
       bench.forEach(player => {
         if (flexSpots < flexSpotNum) {
           if (player.Pos == "RB" || player.Pos == "WR" || player.Pos == "TE") {
-            player['rosterPosition'] = "FLEX" + (flexSpots + 1)
+            player['rosterPosition'] = "FLX" + (flexSpotNum > 1 ? flexSpots + 1 : "")
             rows.push(player)
             flexSpots++;
           } else {
@@ -199,7 +241,7 @@ export default {
 
       for (var j = 0; j < flexSpotNum - flexSpots; j++) {
         rows.push({
-          "rosterPosition": "FLEX" + (flexSpots + j + 1),
+          "rosterPosition": "FLX" + (flexSpotNum > 1 ? flexSpots + j + 1 : ""),
           "Name": "--",
           "Tm/Bye": "--",
           "position": "--",
@@ -212,13 +254,13 @@ export default {
     handleBench(rows, bench, benchNum) {
       bench.sort((a, b) => (a.roundDrafted > b.roundDrafted) ? 1 : -1)
       bench.forEach(player => {
-        player['rosterPosition'] = "BENCH"
+        player['rosterPosition'] = "BE"
         rows.push(player)
       })
 
       for (var i = 0; i < benchNum - bench.length; i++) {
         rows.push({
-          "rosterPosition": "BENCH",
+          "rosterPosition": "BE",
           "Name": "--",
           "Tm/Bye": "--",
           "position": "--",

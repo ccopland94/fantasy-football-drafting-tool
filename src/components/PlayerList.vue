@@ -10,21 +10,21 @@
     class="elevation-1 text-left">
       <template v-slot:item="row">
         <tr :class="style(row.item)">
-          <td class="truncate">{{row.item['Name']}}</td>
-          <td v-if="includePos">{{row.item['Pos']}}</td>
-          <td v-if="includePos">{{row.item['tierInt']}}</td>
-          <td :style="valueStyle(row.item)">{{row.item['Average']}}</td>
-          <td :class="ecrStyle(row.item)">{{row.item['ECR']}}</td>
+          <td class="truncate px-1">{{row.item['Name']}}</td>
+          <td class="px-1" v-if="includePos">{{row.item['Pos']}}</td>
+          <td class="px-1" v-if="includePos">{{row.item['tierInt']}}</td>
+          <td class="px-1" :style="valueStyle(row.item)">{{row.item['Average']}}</td>
+          <td :class="ecrStyle(row.item) + ' px-1'">{{row.item['ECR']}}</td>
           <td>{{row.item['Tm/Bye']}}</td>
           <td :style="psStyle(row.item)">{{row.item['psFormatted'] + "%"}}</td>
-          <td>
-            <v-btn v-if="!row.item.taken" class="mx-1" :disabled="row.item.taken || row.item.drafted" small icon color="red" @click="onTaken(row.item)">
+          <td class="text-center px-1">
+            <v-btn v-if="!row.item.taken" class="mx-1" :disabled="row.item.taken || row.item.drafted" x-small icon color="red" @click="onTaken(row.item)">
               <v-icon dark>mdi-close</v-icon>
             </v-btn>
-            <v-btn v-else class="mx-1" :disabled="row.item.drafted" small icon color="blue" @click="onUntaken(row.item)">
+            <v-btn v-else class="mx-1" :disabled="row.item.drafted" x-small icon color="blue" @click="onUntaken(row.item)">
               <v-icon dark>mdi-reload</v-icon>
             </v-btn>
-            <v-btn class="mx-1" :disabled="row.item.taken || row.item.drafted" small icon color="green" @click="onDrafted(row.item)">
+            <v-btn class="mx-1" :disabled="row.item.taken || row.item.drafted" x-small icon color="green" @click="onDrafted(row.item)">
               <v-icon dark>mdi-check</v-icon>
             </v-btn>
           </td>
@@ -38,13 +38,6 @@ import Rainbow from 'rainbowvis.js'
 
 export default {
   created() {
-    const topColor = "#7ec5ff"
-    const bottomColor = "#ffb056"
-
-    // set PS Color gradient
-    this.psColorGradient = new Rainbow();
-    this.psColorGradient.setSpectrum(topColor, bottomColor)
-    this.psColorGradient.setNumberRange(0, 100)
   },
   props: {
     headers: Array,
@@ -68,7 +61,8 @@ export default {
   },
   data: () => ({
     rowsPerPageItems: [5, 10, 15, 20, 30],
-    psColorGradient: null
+    bottomColor: "#5fb7ff",
+    topColor: "#fda33c"
   }),
   computed: {
     footerProps () {
@@ -77,27 +71,31 @@ export default {
       }
     },
     scoreColorGradients() {
-      const topColor = "#7ec5ff"
-      const bottomColor = "#ffb056"
-
       var gradients = {}
       gradients["QB"] = new Rainbow();
-      gradients["QB"].setSpectrum(topColor, bottomColor)
+      gradients["QB"].setSpectrum(this.bottomColor, this.topColor)
       gradients["QB"].setNumberRange(this.qbScoreRange[1], this.qbScoreRange[0])
 
       gradients["RB"] = new Rainbow();
-      gradients["RB"].setSpectrum(topColor, bottomColor)
+      gradients["RB"].setSpectrum(this.bottomColor, this.topColor)
       gradients["RB"].setNumberRange(this.rbScoreRange[1], this.rbScoreRange[0])
 
       gradients["WR"] = new Rainbow();
-      gradients["WR"].setSpectrum(topColor, bottomColor)
+      gradients["WR"].setSpectrum(this.bottomColor, this.topColor)
       gradients["WR"].setNumberRange(this.wrScoreRange[1], this.wrScoreRange[0])
 
       gradients["TE"] = new Rainbow();
-      gradients["TE"].setSpectrum(topColor, bottomColor)
+      gradients["TE"].setSpectrum(this.bottomColor, this.topColor)
       gradients["TE"].setNumberRange(this.teScoreRange[1], this.teScoreRange[0])
 
       return gradients
+    },
+    psColorGradient() {
+      var psColorGradient = new Rainbow();
+      psColorGradient.setSpectrum(this.bottomColor, this.topColor)
+      psColorGradient.setNumberRange(0, 100)
+
+      return psColorGradient;
     }
   },
   methods: {
@@ -164,7 +162,7 @@ export default {
   }
 
   .evenTier {
-    background-color: #ececea !important;
+    background-color: #dadada !important;
   }
 
   .oddTier {
@@ -182,17 +180,25 @@ export default {
   }
 
   .ecrGood {
-    background-color: #ffb056;
+    background-color: #fda33c;
   }
 
   .ecrBad {
-    background-color: #7ec5ff;
+    background-color: #5fb7ff;
   }
 
   .truncate {
-    max-width: 150px;
+    max-width: 100px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .container {
+    max-width: none !important;
+  }
+
+  .v-data-table-header th {
+    padding: 0 4px !important;
   }
 </style>

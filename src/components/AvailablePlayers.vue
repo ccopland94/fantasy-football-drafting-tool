@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols="8">
+      <v-col cols="12" sm="8">
         <span class="text-button"> Recommended Players </span><br/>
         <v-select
           class="pb-2"
@@ -12,7 +12,7 @@
           style="display: inline-block;"
           v-model="recommendStrategy"/>
           <v-checkbox
-            color="#1b3b13"
+            color="primary"
             dense
             hide-details
             v-model="recommendQbs"
@@ -20,7 +20,7 @@
             class="pr-2 pl-2"
             style="display: inline-block;"/>
           <v-checkbox
-            color="#1b3b13"
+            color="primary"
             dense
             hide-details
             v-model="recommendRbs"
@@ -28,7 +28,7 @@
             class="pr-2 pl-2"
             style="display: inline-block;"/>
           <v-checkbox
-            color="#1b3b13"
+            color="primary"
             dense
             hide-details
             v-model="recommendWrs"
@@ -36,7 +36,7 @@
             class="pr-2 pl-2"
             style="display: inline-block;"/>
           <v-checkbox
-            color="#1b3b13"
+            color="primary"
             dense
             hide-details
             v-model="recommendTes"
@@ -57,8 +57,9 @@
           @taken="taken"
           @untaken="untaken"/>
       </v-col>
-      <v-col>
+      <v-col cols="12" sm="4">
         <DraftedPlayers
+          :rosterSettings="rosterSettings"
           :players="draftedList"
           :round="round"
           :totalPicks="totalPicks"
@@ -88,7 +89,7 @@
           v-model="showTaken"
           dense
           hide-details
-          color="#1b3b13"
+          color="primary"
           style="display: inline-block"
           class="pl-2 pr-2"
           label="Show Taken"/>
@@ -96,42 +97,14 @@
           v-model="showDrafted"
           dense
           hide-details
-          color="#1b3b13"
+          color="primary"
           class="pl-2"
           style="display: inline-block"
           label="Show Drafted"/>
       </v-col>
     </v-row>
     <v-row>
-      <v-col cols="4">
-        <span class="text-button"> QBs </span>
-        <PlayerList
-          :headers="headers"
-          :items="qbs"
-          :filterText="filterText"
-          :qbScoreRange="qbScoreRange"
-          :rbScoreRange="rbScoreRange"
-          :wrScoreRange="wrScoreRange"
-          :teScoreRange="teScoreRange"
-          class="mb-2"
-          @drafted="drafted"
-          @taken="taken"
-          @untaken="untaken"/>
-        <span class="text-button"> TEs </span>
-        <PlayerList
-          :headers="headers"
-          :items="tes"
-          :filterText="filterText"
-          :qbScoreRange="qbScoreRange"
-          :rbScoreRange="rbScoreRange"
-          :wrScoreRange="wrScoreRange"
-          :teScoreRange="teScoreRange"
-          class="mt-2"
-          @drafted="drafted"
-          @taken="taken"
-          @untaken="untaken"/>
-      </v-col>
-      <v-col cols="4">
+      <v-col class="px-2" cols="12" sm="6" md="6" lg="4" xl="4">
         <span class="text-button"> RBs </span>
         <PlayerList
           :headers="headers"
@@ -146,13 +119,55 @@
           @taken="taken"
           @untaken="untaken"/>
       </v-col>
-      <v-col cols="4">
+      <v-col class="px-2" cols="12" sm="6" md="6" lg="4" xl="4">
         <span class="text-button"> WRs </span>
         <PlayerList
           :headers="headers"
           :items="wrs"
           :filterText="filterText"
           :rowsPerPage="20"
+          :qbScoreRange="qbScoreRange"
+          :rbScoreRange="rbScoreRange"
+          :wrScoreRange="wrScoreRange"
+          :teScoreRange="teScoreRange"
+          @drafted="drafted"
+          @taken="taken"
+          @untaken="untaken"/>
+      </v-col>
+      <v-col class="px-2" cols="12" sm="6" md="6" lg="4" xl="4">
+        <span class="text-button"> QBs </span>
+        <PlayerList
+          :headers="headers"
+          :items="qbs"
+          :filterText="filterText"
+          :qbScoreRange="qbScoreRange"
+          :rbScoreRange="rbScoreRange"
+          :wrScoreRange="wrScoreRange"
+          :teScoreRange="teScoreRange"
+          @drafted="drafted"
+          @taken="taken"
+          @untaken="untaken"/>
+        <div class="pt-2"/>
+        <span class="text-button" v-if="screenSize >= 4"> TEs </span>
+        <PlayerList
+          v-if="screenSize >= 4"
+          :headers="headers"
+          :items="tes"
+          :filterText="filterText"
+          :qbScoreRange="qbScoreRange"
+          :rbScoreRange="rbScoreRange"
+          :wrScoreRange="wrScoreRange"
+          :teScoreRange="teScoreRange"
+          @drafted="drafted"
+          @taken="taken"
+          @untaken="untaken"/>
+      </v-col>
+      <v-col class="px-2" cols="12" sm="6" md="6" lg="4" v-if="screenSize < 4">
+        <span class="text-button" > TEs </span>
+        <PlayerList
+          :headers="headers"
+          :items="tes"
+          :filterText="filterText"
           :qbScoreRange="qbScoreRange"
           :rbScoreRange="rbScoreRange"
           :wrScoreRange="wrScoreRange"
@@ -178,7 +193,12 @@
               <span class="text-body-1">Use this form to give specifics about your league, your drafting position, and upload the BeerSheet data used to power this tool.</span>
             </v-col>
           </v-row>
-          <v-row>
+          <v-row class="mt-0">
+            <v-col class="px-2">
+              <span class="text-body-1 font-weight-bold"> Draft Settings </span>
+            </v-col>
+          </v-row>
+          <v-row class="mt-0">
             <v-col cols="6">
               <v-text-field
                 type="number"
@@ -196,7 +216,85 @@
                 label="Draft Position"/>
             </v-col>
           </v-row>
+          <v-row class="mt-0">
+            <v-col class="px-2">
+              <span class="text-body-1 font-weight-bold"> Roster Settings </span>
+            </v-col>
+          </v-row>
+          <v-row class="mt-0">
+            <v-col cols="3">
+              <v-text-field
+                type="number"
+                min="0"
+                max="3"
+                v-model="rosterForm['QB']"
+                label="QB"/>
+            </v-col>
+            <v-col cols="3">
+              <v-text-field
+                type="number"
+                min="0"
+                max="3"
+                v-model="rosterForm['RB']"
+                label="RB"/>
+            </v-col>
+            <v-col cols="3">
+              <v-text-field
+                type="number"
+                min="0"
+                max="3"
+                v-model="rosterForm['WR']"
+                label="WR"/>
+            </v-col>
+            <v-col cols="3">
+              <v-text-field
+                type="number"
+                min="0"
+                max="3"
+                v-model="rosterForm['TE']"
+                label="TE"/>
+            </v-col>
+          </v-row>
           <v-row>
+            <v-col cols="3">
+              <v-text-field
+                type="number"
+                min="0"
+                max="3"
+                v-model="rosterForm['D/ST']"
+                label="D/ST"/>
+            </v-col>
+            <v-col cols="3">
+              <v-text-field
+                type="number"
+                min="0"
+                max="3"
+                v-model="rosterForm['K']"
+                label="K"/>
+            </v-col>
+            <v-col cols="3">
+              <v-text-field
+                type="number"
+                min="0"
+                max="3"
+                v-model="rosterForm['FLEX']"
+                label="Flex"/>
+            </v-col>
+            <v-col cols="3">
+              <v-text-field
+                type="number"
+                min="0"
+                max="3"
+                v-model="rosterForm['BENCH']"
+                label="Bench"/>
+            </v-col>
+          </v-row>
+          <v-row class="mt-0">
+            <v-col class="px-2">
+              <span class="text-body-1 font-weight-bold"> Analytics Import </span>
+            </v-col>
+          </v-row>
+          <v-row class="mt-0">
             <v-col cols="12">
               <v-file-input
                 v-model="chosenFile"
@@ -231,6 +329,16 @@ export default {
   data: () => ({
     setupDialog: true,
     teamNumForm: 10,
+    rosterForm: {
+      "QB": 1,
+      "RB": 2,
+      "WR": 2,
+      "TE": 1,
+      "FLEX": 1,
+      "BENCH": 6,
+      "K": 1,
+      "D/ST": 1
+    },
     draftPositionForm: 1,
     chosenFile: null,
     recommendQbs: true,
@@ -249,7 +357,7 @@ export default {
         value: "Name"
       },
       {
-        text: "POS",
+        text: "Pos.",
         value: "Pos"
       },
       {
@@ -315,7 +423,16 @@ export default {
     draftedList: [],
     pickLocation: 1,
     numTeams: 10,
-    rounds: 15,
+    rosterSettings: {
+      "QB": 1,
+      "WR": 2,
+      "RB": 2,
+      "TE": 1,
+      "FLEX": 1,
+      "K": 1,
+      "D/ST": 1,
+      "BENCH": 1
+    },
     recommendStrategy: "Score"
   }),
   methods: {
@@ -324,6 +441,14 @@ export default {
       if (this.chosenFile == null || this.chosenFile == "") return;
 
       this.loadingSheet = true
+
+      // fill out roster settings
+
+      for (var k in this.rosterForm) {
+        Vue.set(this.rosterSettings, k, parseInt(this.rosterForm[k]))
+      }
+
+      console.log(this.rosterSettings)
 
       this.pickLocation = parseInt(this.draftPositionForm)
       this.numTeams = parseInt(this.teamNumForm)
@@ -401,6 +526,25 @@ export default {
     }
   },
   computed: {
+    rounds () {
+      var rds = 0
+      for (var k in this.rosterSettings) {
+        rds += this.rosterSettings[k]
+      }
+
+      return rds
+    },
+    screenSize() {
+      switch (this.$vuetify.breakpoint.name) {
+        case 'xs': return 1
+        case 'sm': return 2
+        case 'md': return 3
+        case 'lg': return 4
+        case 'xl': return 5
+      }
+
+      return 100
+    },
     canInit() {
       return !(this.teamNumForm < 0 || this.teamNumForm == "" || this.draftPositionForm <= 0 || this.draftPositionForm == "" || this.chosenFile == null || this.chosenFile == "")
     },
