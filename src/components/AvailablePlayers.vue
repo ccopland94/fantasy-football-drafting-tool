@@ -234,7 +234,7 @@
               <v-text-field
                 type="number"
                 min="0"
-                max="3"
+                max="5"
                 v-model="rosterForm['RB']"
                 label="RB"/>
             </v-col>
@@ -242,7 +242,7 @@
               <v-text-field
                 type="number"
                 min="0"
-                max="3"
+                max="5"
                 v-model="rosterForm['WR']"
                 label="WR"/>
             </v-col>
@@ -250,7 +250,7 @@
               <v-text-field
                 type="number"
                 min="0"
-                max="3"
+                max="5"
                 v-model="rosterForm['TE']"
                 label="TE"/>
             </v-col>
@@ -276,7 +276,7 @@
               <v-text-field
                 type="number"
                 min="0"
-                max="3"
+                max="5"
                 v-model="rosterForm['FLEX']"
                 label="Flex"/>
             </v-col>
@@ -284,7 +284,7 @@
               <v-text-field
                 type="number"
                 min="0"
-                max="3"
+                max="10"
                 v-model="rosterForm['BENCH']"
                 label="Bench"/>
             </v-col>
