@@ -10,11 +10,16 @@
           hide-default-footer
           class="elevation-1">
           <template v-slot:item="row">
-            <tr :class="rowStyle(row.item)+' text-left'">
+            <tr v-if="screenSize > 1" :class="rowStyle(row.item)+' text-left'">
               <td class="px-1">{{row.item['rosterPosition']}}</td>
               <td class="truncate px-1">{{row.item['Name']}}</td>
               <td class="px-1">{{row.item['Tm/Bye']}}</td>
               <td class="px-1">{{row.item['roundDrafted']}}</td>
+            </tr>
+            <tr v-else :class="rowStyle(row.item)+' text-left'">
+              <span class="px-1 font-weight-bold">{{row.item['rosterPosition']}}, {{row.item['Name']}} <span class="font-weight-regular">({{row.item['Tm/Bye']}})</span></span><br/>
+              <span class="px-1"><span class="font-weight-medium">Round Drafted: </span>{{row.item['roundDrafted']}}</span>
+              <v-divider/>
             </tr>
           </template>
           <template v-slot:footer>
@@ -72,6 +77,17 @@ export default {
     allPicks: Array
   },
   computed: {
+    screenSize() {
+      switch (this.$vuetify.breakpoint.name) {
+        case 'xs': return 1
+        case 'sm': return 2
+        case 'md': return 3
+        case 'lg': return 4
+        case 'xl': return 5
+      }
+
+      return 100
+    },
     currentPickDisplay() {
       const round = Math.floor(this.totalPicks / this.numTeams) + 1
       var pick = this.totalPicks % this.numTeams + 1

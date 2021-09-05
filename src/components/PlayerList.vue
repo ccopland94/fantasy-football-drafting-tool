@@ -9,7 +9,7 @@
     :hide-default-footer="hideFooter"
     class="elevation-1 text-left">
       <template v-slot:item="row">
-        <tr :class="style(row.item)">
+        <tr :class="style(row.item)" v-if="screenSize > 1">
           <td class="truncate px-1">{{row.item['Name']}}</td>
           <td class="px-1" v-if="includePos">{{row.item['Pos']}}</td>
           <td class="px-1" v-if="includePos">{{row.item['tierInt']}}</td>
@@ -28,6 +28,27 @@
               <v-icon dark>mdi-check</v-icon>
             </v-btn>
           </td>
+        </tr>
+        <tr :class="style(row.item) + ' text-body-2'" v-else>
+          <span class="px-1 text-body-2 font-weight-bold"><span>{{row.item['Name']}}</span>, {{row.item['Pos']}}, {{row.item['Tm/Bye']}}</span>
+          <div class="px-1" style="display: inline; float: right;">
+            <v-btn v-if="!row.item.taken" class="mx-1" :disabled="row.item.taken || row.item.drafted" icon color="red" @click="onTaken(row.item)">
+              <v-icon dark>mdi-close</v-icon>
+            </v-btn>
+            <v-btn v-else class="mx-1" :disabled="row.item.drafted" icon color="blue" @click="onUntaken(row.item)">
+              <v-icon dark>mdi-reload</v-icon>
+            </v-btn>
+            <v-btn class="mx-1" :disabled="row.item.taken || row.item.drafted" icon color="green" @click="onDrafted(row.item)">
+              <v-icon dark>mdi-check</v-icon>
+            </v-btn>
+          </div><br/>
+          <div class="px-1">
+            <span> <span class="font-weight-medium">Tier:</span> {{ row.item['tierInt']}} -- </span><span> <span class="font-weight-medium">Value:</span> <span :style="valueStyle(row.item)">{{ row.item['Average'] }}</span></span>
+          </div>
+          <div class="px-1">
+            <span> <span class="font-weight-medium">ECR:</span> <span :class="ecrStyle(row.item)">{{row.item['ECR']}}</span></span> -- <span> <span class="font-weight-medium">PS:</span> <span :style="psStyle(row.item)">{{row.item['psFormatted'] + "%"}}</span></span>
+          </div>
+          <v-divider/>
         </tr>
       </template>
   </v-data-table>
@@ -65,6 +86,17 @@ export default {
     topColor: "#fda33c"
   }),
   computed: {
+    screenSize() {
+      switch (this.$vuetify.breakpoint.name) {
+        case 'xs': return 1
+        case 'sm': return 2
+        case 'md': return 3
+        case 'lg': return 4
+        case 'xl': return 5
+      }
+
+      return 100
+    },
     footerProps () {
       return {
         "items-per-page-options": this.rowsPerPageItems

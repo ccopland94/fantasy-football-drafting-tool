@@ -10,7 +10,7 @@
           label="Recommendation Strategy"
           :items="recommendationStrategies"
           style="display: inline-block;"
-          v-model="recommendStrategy"/>
+          v-model="recommendStrategy"/> <br v-if="screenSize < 3"/>
           <v-checkbox
             color="primary"
             dense
