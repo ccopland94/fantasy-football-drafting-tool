@@ -254,7 +254,7 @@ export default {
     handleBench(rows, bench, benchNum) {
       bench.sort((a, b) => (a.roundDrafted > b.roundDrafted) ? 1 : -1)
       bench.forEach(player => {
-        player['rosterPosition'] = "BE"
+        player['rosterPosition'] = "BE, "+player.Pos+""
         rows.push(player)
       })
 
