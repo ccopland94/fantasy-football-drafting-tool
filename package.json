@@ -1,6 +1,9 @@
 {
   "name": "fantasy-football-drafting-tool",
   "version": "0.1.0",
+  "engines": {
+    "node": "16.13.0"
+  },
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
