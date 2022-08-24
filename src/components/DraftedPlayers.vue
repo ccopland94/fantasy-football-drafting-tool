@@ -35,7 +35,26 @@
                 <v-col cols="auto" class="px-1 pt-0 pb-0">
                 <v-btn class="" :disabled="pickedPlayerCount <= 0" x-small outlined color="red" @click="undoPick">Undo Last Pick</v-btn>
                 </v-col>
-                <!-- <span class="text-subtitle-2 font-weight-bold pl-2 pr-2">Next Draft Round: <span class="font-weight-regular">{{ round }} / {{ totalPlayerCount }}</span></span> -->
+              </v-row>
+              <v-row justify="center">
+                <v-col cols="auto" class="px-1 pt-0 pb-0">
+                  <span class="text-subtitle-2 font-weight-bold">QBs: <span class="font-weight-regular">{{ qbNum }} / {{ qbLim }}</span></span>
+                </v-col>
+                <v-col cols="auto" class="px-1 pt-0 pb-0">
+                  <span class="text-subtitle-2 font-weight-bold">RBs: <span class="font-weight-regular">{{ rbNum }} / {{ rbLim }}</span></span>
+                </v-col>
+                <v-col cols="auto" class="px-1 pt-0 pb-0">
+                  <span class="text-subtitle-2 font-weight-bold">WRs: <span class="font-weight-regular">{{ wrNum }} / {{ wrLim }}</span></span>
+                </v-col>
+                <v-col cols="auto" class="px-1 pt-0 pb-0">
+                  <span class="text-subtitle-2 font-weight-bold">TEs: <span class="font-weight-regular">{{ teNum }} / {{ teLim }}</span></span>
+                </v-col>
+                <v-col cols="auto" class="px-1 pt-0 pb-0">
+                  <span class="text-subtitle-2 font-weight-bold">D/STs: <span class="font-weight-regular">{{ dstNum }} / {{ dstLim }}</span></span>
+                </v-col>
+                <v-col cols="auto" class="px-1 pt-0 pb-0">
+                  <span class="text-subtitle-2 font-weight-bold">Ks: <span class="font-weight-regular">{{ kNum }} / {{ kLim }}</span></span>
+                </v-col>
               </v-row>
             </v-container>
           </template>
@@ -97,7 +116,7 @@ export default {
       return round + "|" + (pick < 10 ? '0'+pick : pick)
     },
     nextPickDisplay() {
-      const round = Math.floor(this.nextPick / this.numTeams) + 1
+      var round = Math.ceil(this.nextPick / this.numTeams)
       var pick = this.nextPick % this.numTeams
       if (pick == 0) {
         pick = this.numTeams
@@ -127,6 +146,24 @@ export default {
     },
     benchLim() {
       return this.rosterSettings['BENCH']
+    },
+    qbNum() {
+      return this.players.filter(player => player['Pos'] == "QB").length
+    },
+    rbNum() {
+      return this.players.filter(player => player['Pos'] == "RB").length
+    },
+    wrNum() {
+      return this.players.filter(player => player['Pos'] == "WR").length
+    },
+    teNum() {
+      return this.players.filter(player => player['Pos'] == "TE").length
+    },
+    kNum() {
+      return this.players.filter(player => player['Pos'] == "K").length
+    },
+    dstNum() {
+      return this.players.filter(player => player['Pos'] == "D/ST").length
     },
     nextPick () {
       for (var i = 0; i < this.allPicks.length; i++) {

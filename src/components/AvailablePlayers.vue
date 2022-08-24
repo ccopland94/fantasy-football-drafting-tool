@@ -1,5 +1,14 @@
 <template>
   <v-container>
+    <v-row v-if="isCurrentPick">
+      <v-col cols="12">
+        <v-alert
+          type="warning"
+          dense>
+          Your Pick!
+        </v-alert>
+      </v-col>
+    </v-row>
     <v-row>
       <v-col cols="12" sm="8">
         <span class="text-button"> Recommended Players </span><br/>
@@ -448,8 +457,6 @@ export default {
         Vue.set(this.rosterSettings, k, parseInt(this.rosterForm[k]))
       }
 
-      console.log(this.rosterSettings)
-
       this.pickLocation = parseInt(this.draftPositionForm)
       this.numTeams = parseInt(this.teamNumForm)
 
@@ -469,7 +476,6 @@ export default {
         player => 
         'ECR' in player && player['ECR'] != "" && 
         'ECR VS. ADP' in player && player['ECR VS. ADP'] != "" && 
-        'ECRAvg' in player && player['ECRAvg'] != "" && 
         'Average' in player && player["Average"] != "" &&
         'Name' in player && player['Name'] != "")
     },
@@ -511,15 +517,6 @@ export default {
     }
   },
   created() {
-    // Papa.parse("http://localhost:8080/sheet.csv", {
-    //   download: true,
-    //   worker: true,
-    //   header: true,
-    //   complete: (results) => {
-    //     this.allPlayers = results.data
-    //   }
-    // })
-
     // if all players is empty, request some information from the user
     if (this.allPlayers.length == 0) {
       this.setupDialog = true
@@ -623,7 +620,15 @@ export default {
 
         // ECR Float
         if (player['ecrFloat'] == null) {
-          Vue.set(player, 'ecrFloat', parseFloat(player['ECRAvg']))
+          const ecr = player['ECR']
+          if (ecr != null) {
+            const parts = ecr.split("|")
+            if (parts.length > 1) {
+              // if ECR length was < 1, means ECR was missing.
+              const ecrValue = (parseInt(parts[0]) - 1) * this.numTeams + parseInt(parts[1])
+              Vue.set(player, 'ecrFloat', ecrValue)
+            }
+          }
         }
 
         formattedPlayers.push(player)
@@ -718,6 +723,9 @@ export default {
         }
       }
       return -1
+    },
+    isCurrentPick() {
+      return this.nextPick == this.totalPicks + 1 && this.allPlayers.length > 0
     }
   }
 }
