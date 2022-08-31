@@ -84,7 +84,8 @@
       </v-col>
     </v-row>
     <v-row class="text-center">
-      <v-col cols="12">
+      <v-spacer/>
+      <v-col cols="auto">
         <v-text-field
           label="Player Name"
           prepend-inner-icon="mdi-magnify"
@@ -107,10 +108,14 @@
           dense
           hide-details
           color="primary"
-          class="pl-2"
+          class="pl-2 pr-2"
           style="display: inline-block"
           label="Show Drafted"/>
       </v-col>
+      <v-col cols="auto" style="margin: auto;">
+        <v-btn color="primary" class="pl-2" small outlined @click="openDSTKDialog">Draft/Select Other</v-btn>
+      </v-col>
+      <v-spacer/>
     </v-row>
     <v-row>
       <v-col class="px-2" cols="12" sm="6" md="6" lg="4" xl="4">
@@ -321,6 +326,10 @@
         </v-container>
       </v-card>
     </v-dialog>
+    <DSTKDialog
+      :bus="bus"
+      @drafted="draftCustom"
+      @taken="takeCustom"/>
   </v-container>
 </template>
 
@@ -329,11 +338,13 @@ import Papa from 'papaparse'
 import PlayerList from '@/components/PlayerList.vue'
 import Vue from 'vue'
 import DraftedPlayers from '@/components/DraftedPlayers.vue'
+import DSTKDialog from '@/components/DSTKDialog.vue'
 
 export default {
   components: {
     PlayerList,
-    DraftedPlayers
+    DraftedPlayers,
+    DSTKDialog
   },
   data: () => ({
     setupDialog: true,
@@ -442,7 +453,8 @@ export default {
       "D/ST": 1,
       "BENCH": 1
     },
-    recommendStrategy: "Score"
+    recommendStrategy: "Score",
+    bus: new Vue()
   }),
   methods: {
     init() {
@@ -470,6 +482,34 @@ export default {
         }
       })
     },
+    openDSTKDialog() {
+      this.bus.$emit("openDialog");
+    },
+    takeCustom(position, name) {
+      // todo - add this custom player to the list of available players with some fields filled out
+      console.log(position, name)
+      this.allPlayers.push({
+        "id": this.allPlayers.length,
+        "Name": name,
+        "Pos": position,
+        "taken": true,
+        "Tm/Bw": "CUS/0",
+        "PS": 0
+      })
+    },
+    draftCustom(position, name) {
+      // todo - add this custom player to the list of available players
+      console.log(position, name)
+      this.allPlayers.push({
+        "id": this.allPlayers.length,
+        "Name": name,
+        "Pos": position,
+        "custom": true,
+        "drafted": true,
+        "Tm/Bw": "CUS/0",
+        "PS": 0
+      })
+    },
     filterAllPlayers(results) {
       // filters out players that do not have complete ECR or Score data or a name (erroneous data)
       return results.filter(
@@ -485,6 +525,7 @@ export default {
       console.log("Unpicked: " + player.Name)
 
       Vue.set(player, 'drafted', false)
+      console.log(player)
       this.draftedList = this.draftedList.splice(0, this.draftedList.length - 1)
     },
     taken(player) {
@@ -503,10 +544,13 @@ export default {
     untaken(player) {
       console.log("Untaken: " + player.Name)
       const id = player.id
+      console.log(this.idToPlayer)
+      console.log(this.idToPlayer[id])
       Vue.set(this.idToPlayer[id], 'taken', false)
     },
     computeScoreRange(playerPosition) {
-      const players = this.allPlayers.filter(player => player['Pos'] == playerPosition).sort((a, b) => (b['avgFloat'] - a['avgFloat'] ))
+      const players = this.allPlayers.filter(player => player['Pos'] == playerPosition && !Number.isNaN(player['avgFloat'])).sort((a, b) => (b['avgFloat'] - a['avgFloat'] ))
+      console.log(players)
       if (players.length < 2) {
         return [1, 0]
       }
@@ -568,7 +612,7 @@ export default {
     formattedPlayers () {
       var formattedPlayers = []
       var pCount = 0
-
+      console.log("recomputing formatted players")
       this.allPlayers.forEach(player => {
         if (player['id'] == null) {
           Vue.set(player, 'id', pCount)
